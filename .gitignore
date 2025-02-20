@@ -1,0 +1,27 @@
+# Ignore virtual environments
+.venv/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore environment variable files
+.env
+.cache
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+*.sublime-workspace
+
+# Ignore logs and temporary files
+logs/
+*.log
+*.tmp
+
+# Ignore build artifacts
+dist/
+build/
