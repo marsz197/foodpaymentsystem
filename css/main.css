@@ -1,0 +1,36 @@
+/* import font */
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+body {
+    font: 1rem/1.5 var(--bs-font-sans-serif);
+  }
+  a {
+    color: var(--bs-blue);
+  }
+
+.navbar-collapse{
+    justify-content: flex-end;
+  }
+.navbar-brand.shopping-cart{
+    width: 60px;
+    height: 40px;
+    padding-left: 5px;
+}
+.navbar-brand{
+    font-size: large;
+    font-family: "Josefin Sans",sans-serif;
+}
+.navbar-brand img{
+    margin-right: 10px ;
+}
+img{
+    max-width:100%;
+    max-height:100%;
+}
+.container-fluid{
+    margin: 2vh 10vw 2vh 10vw ;
+}
+.navbar-nav a{
+    margin-left: 5vw;
+    font-size: large;
+    font-family: "Josefin Sans",sans-serif;
+}
