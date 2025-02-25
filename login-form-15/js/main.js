@@ -15,7 +15,7 @@
 
 })(jQuery);
 
-const signupForm = document.getElementById('signup-form');
+const signupForm = document.getElementById('signup');
 signupForm.addEventListener('submit', async (event) => {
   event.preventDefault(); // Prevent default form submission
 
@@ -35,7 +35,7 @@ signupForm.addEventListener('submit', async (event) => {
   }
 });
 
-const signinForm = document.getElementById('signin-form');
+const signinForm = document.getElementById('signin');
 signinForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
