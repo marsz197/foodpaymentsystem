@@ -1,21 +1,19 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getActiveResourcesInfo } from "process";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration
+// Load environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyCV49Xr9GECNH5O9jWt0Nib4AyWNPxXUkA",
-  authDomain: "food-payment-sys-firebase-app.firebaseapp.com",
-  projectId: "food-payment-sys-firebase-app",
-  storageBucket: "food-payment-sys-firebase-app.firebasestorage.app",
-  messagingSenderId: "1041294912760",
-  appId: "1:1041294912760:web:576bb9348325d840359f0d"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,  // Use an environment variable
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
+export{auth,app}
 

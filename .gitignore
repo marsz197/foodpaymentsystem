@@ -7,8 +7,8 @@ __pycache__/
 *.pyo
 
 # Ignore environment variable files
-.env
-.cache
+*.env
+*.cache
 # Ignore OS-specific files
 .DS_Store
 Thumbs.db
