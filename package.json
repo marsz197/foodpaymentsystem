@@ -1,5 +1,25 @@
 {
   "dependencies": {
-    "firebase": "^11.3.1"
-  }
+    "@genkit-ai/googleai": "^1.0.5",
+    "firebase": "^11.3.1",
+    "genkit": "^1.0.5"
+  },
+  "name": "foodpaymentsystem",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marsz197/foodpaymentsystem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marsz197/foodpaymentsystem/issues"
+  },
+  "homepage": "https://github.com/marsz197/foodpaymentsystem#readme",
+  "description": ""
 }
