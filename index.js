@@ -1,6 +1,29 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+import { getAuth,createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js'
+// password-toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const passwordButtons = document.getElementsByClassName('toggle-password');
+
+  Array.from(passwordButtons).forEach(button => {
+    button.addEventListener('click', togglePassword);
+  });
+
+  function togglePassword() {
+    const passwordField = document.getElementById('password');
+    const eyeIcon = document.getElementById('eye_icon');
+
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+      eyeIcon.classList.remove('fa-eye');
+      eyeIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordField.type = 'password';
+      eyeIcon.classList.remove('fa-eye-slash');
+      eyeIcon.classList.add('fa-eye');
+    }
+  }
+});
 
 // Load environment variables
 const firebaseConfig = {
@@ -14,24 +37,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-// password-toggle
-(function($) {
 
-	"use strict";
-
-	$(".toggle-password").click(function() {
-
-  $(this).toggleClass("fa-eye fa-eye-slash");
-  var input = $($(this).attr("toggle"));
-  if (input.attr("type") == "password") {
-    input.attr("type", "text");
-  } else {
-    input.attr("type", "password");
-  }
-});
-
-})(jQuery);
-// signup and signin 
+// signup and signin
 const signupForm = document.getElementById('signup');
 signupForm.addEventListener('submit', async (event) => {
   event.preventDefault(); // Prevent default form submission
@@ -43,6 +50,9 @@ signupForm.addEventListener('submit', async (event) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     console.log("User created:", user);
+    document.getElementById('error-message').innerHTML = "User created successfully !!!"
+    document.getElementById('error-message').style.color = "green"
+    setTimeout(()=>{window.location.replace("signin.html")},4000)
     // Redirect to a success page or handle user creation successfully.
   } catch (error) {
     const errorCode = error.code;
