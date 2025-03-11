@@ -40,7 +40,7 @@
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
+          aria-controls="navbarNav" 
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
@@ -53,21 +53,29 @@
             </li>
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="#">Menu</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link cart-link" href="#">
-                <img
-                  src="../img/shopping-cart.png"
-                  alt="Shopping Cart"
-                  class="cart-icon"
-                />
-                <span class="cart-count">0</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="../login-form-15/signin.html">Login</a>
+            </li>            
+            <li>
+              <a class="nav-link" href="../signin.html">Login</a>
             </li>
           </ul>
+          <!-- Shopping cart tab  -->
+          <div class="navbar-brand shopping-cart" id="cart-icon">
+            <i class="bi bi-cart2"></i>
+            <span id="cart-count">0</span>
+          </div>
+
+          <div class="navbar-brand cart-tab"  id="cart-tab">
+            <div class="cart-head">
+              <h2>Shopping cart</h2>
+              <button class="cart-close-btn">X</button>
+            </div>
+            <ul id="cart-items">
+                <!--Food goes here for the fatass-->
+            </ul>
+
+            <div class="cart-total">Total: <span id="total-price">0</span> VND</div>
+            <div class="get-time-btn">Get waiting time</div>
+          </div>
         </div>
       </div>
     </nav>
@@ -103,7 +111,7 @@
                 Vietnamese baguette with various fillings such as pate, pork,
                 and fresh herbs
               </p>
-              <button class="btn-add-cart" onclick="toggleCart(this)">
+              <button class="btn-add-cart" onclick="addItem(this.parentElement.parentElement)">
                 Add to Cart
               </button>
             </div>
@@ -126,7 +134,7 @@
               <p class="menu-description">
                 Traditional Vietnamese milk tea with tapioca pearls
               </p>
-              <button class="btn-add-cart" onclick="toggleCart(this)">
+              <button class="btn-add-cart" onclick="addItem(this.parentElement.parentElement)">
                 Add to Cart
               </button>
             </div>
@@ -149,7 +157,7 @@
               <p class="menu-description">
                 Vietnamese coffee with condensed milk
               </p>
-              <button class="btn-add-cart" onclick="toggleCart(this)">
+              <button class="btn-add-cart" onclick="addItem(this.parentElement.parentElement)">
                 Add to Cart
               </button>
             </div>
@@ -167,5 +175,6 @@
           : "Add to Cart";
       }
     </script>
+    <script src="../js/main.js"></script>
   </body>
 </html>

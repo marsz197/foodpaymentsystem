@@ -1,52 +1,115 @@
-// Cart functionality
-class ShoppingCart {
-  constructor() {
-    this.items = [];
-    this.count = 0;
-    this.cartCountElement = document.querySelector('.cart-count');
-    this.init();
-  }
+ //import { getFirestore, collection, addDoc, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
+//import { app } from "../index.js"
 
-  init() {
-    // Load cart data from localStorage
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      this.items = JSON.parse(savedCart);
-      this.updateCartCount();
+
+document.addEventListener('DOMContentLoaded', () => {
+  let cartIcon = document.getElementById("cart-icon");
+  let cartModel = document.querySelector(".navbar-brand.cart-tab");
+  let cartClose = document.querySelector(".cart-close-btn");
+    
+  cartIcon.onclick = () => {
+    cartModel.classList.add("open-cart");
+  };
+  
+  cartClose.onclick = () => {
+    cartModel.classList.remove("open-cart");
+  };
+});
+
+
+let cartItems = JSON.parse(localStorage.getItem("cart-items")) || [];
+let total = 0;
+let itemCount = 0;
+
+window.onload = function (){updateCartCount();}
+
+
+function changeQuantity (name, delta){
+  const item = cartItems.find((item) => item.name === name);
+  
+  if (item) {
+    item.quantity += delta;
+    if (item.quantity <= 0) {
+      removeItem(name);
+    } else {
+      updateLocalStorage();
+      updateCartCount();
     }
-  }
-
-  addItem(item) {
-    this.items.push(item);
-    this.updateCartCount();
-    this.saveCart();
-  }
-
-  removeItem(item) {
-    const index = this.items.findIndex(i => i.id === item.id);
-    if (index > -1) {
-      this.items.splice(index, 1);
-      this.updateCartCount();
-      this.saveCart();
-    }
-  }
-
-  updateCartCount() {
-    this.count = this.items.length;
-    if (this.cartCountElement) {
-      this.cartCountElement.textContent = this.count;
-      // Add animation
-      this.cartCountElement.style.animation = 'pulse 0.5s ease';
-      setTimeout(() => {
-        this.cartCountElement.style.animation = '';
-      }, 500);
-    }
-  }
-
-  saveCart() {
-    localStorage.setItem('cart', JSON.stringify(this.items));
   }
 }
+
+
+
+function addItem (card) {
+  const name = card.querySelector('.menu-title').textContent;
+  const priceText =  card.querySelector('.menu-price').textContent
+  .replace('.', '')
+  .replace('VND', '')
+  .trim();
+  const price = parseInt(priceText)
+  const prodImg = card.querySelector('.menu-image').src;
+  
+  const existingItem = cartItems.find((item) => item.name === name)
+  if (existingItem)  {
+    existingItem.quantity += 1
+  }else {
+    cartItems.push({
+      name,
+      price,
+      quantity: 1,
+      img: prodImg
+    });
+  }
+
+  updateLocalStorage();
+  updateCartCount();
+}
+
+//Keep food on refresh
+function updateLocalStorage () {
+  localStorage.setItem("cart-items", JSON.stringify(cartItems));
+}
+
+//Cart display
+function updateCartCount() {
+  const cartList = document.getElementById("cart-items");
+  const totalElement = document.getElementById("total-price");
+  const countElement = document.getElementById("cart-count")
+
+  cartList.innerHTML  = '';
+  total = cartItems.reduce((sum,item) => sum + item.price * item.quantity, 0)
+  itemCount = cartItems.reduce((count, item) => count + item.quantity, 0) 
+
+  cartItems.forEach(item => {
+    const li = document.createElement("li");
+    li.classList = 'cart-items';
+    li.innerHTML = `
+      <img src="${item.img}" alt="${item.name}" class="cart-item-image" />
+      <div class="cart-item-details">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${item.price.toLocaleString('de-DE')} x ${item.quantity}</div>
+      </div>
+
+      <div class="quantity-controls">
+        <button onclick="changeQuantity('${item.name}', 1)">+</button>
+        <button onclick="changeQuantity('${item.name}', -1)">-</button>
+      </div>
+      <button class="remove-item" onclick="removeItem('${item.name}')">x</button>
+      `;
+    cartList.appendChild(li);
+
+
+  });
+  totalElement.textContent = total.toLocaleString('de-DE');
+  countElement.textContent = itemCount;
+} 
+
+function removeItem(name) {
+  cartItems = cartItems.filter((item) => item.name !== name);
+  updateLocalStorage();
+  updateCartCount();
+}
+
 
 // Initialize cart
 const cart = new ShoppingCart();
@@ -82,6 +145,9 @@ function toggleCart(button) {
   const ripple = document.createElement('span');
   ripple.classList.add('ripple');
   button.appendChild(ripple);
+  const rect = button.getBoundingClientRect();
+  ripple.style.left = `${event.clientX - rect.left}px`;
+  ripple.style.top = `${event.clientY - rect.top}px`;
   
   setTimeout(() => ripple.remove(), 1000);
 
@@ -100,23 +166,6 @@ function toggleCart(button) {
   }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  initializeMenuCards();
-});
 
-// Navbar scroll effect
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-  const navbar = document.querySelector('.navbar');
-  const currentScroll = window.pageYOffset;
 
-  if (currentScroll > lastScroll) {
-    navbar.style.transform = 'translateY(-100%)';
-  } else {
-    navbar.style.transform = 'translateY(0)';
-  }
-
-  lastScroll = currentScroll;
-});
 
