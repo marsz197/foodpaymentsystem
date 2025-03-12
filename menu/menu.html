@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VGU Canteen Online Ordering</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico" />
+    <!-- CSS link -->
+    <link rel="stylesheet" href="../css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../css/main.css" />
+    <!-- Font stuff -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- NavBar Section -->
+    <nav
+      role="navigation"
+      class="navbar navbar-expand-lg navbar-light"
+      style="background-color: #e4dede"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" style="margin-left: 5vw" href="../index.html">
+          <img
+            class="d-inline-block align-text-center"
+            src="../img/vgu_logo.png"
+            alt=""
+            height="30%"
+            width="30%"
+          />
+          Canteen Food Ordering
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav" 
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Menu</a>
+            </li>            
+            <li>
+              <a class="nav-link" href="../signin.html">Login</a>
+            </li>
+          </ul>
+          <!-- Shopping cart tab  -->
+          <div class="navbar-brand shopping-cart" id="cart-icon">
+            <i class="bi bi-cart2"></i>
+            <span id="cart-count">0</span>
+          </div>
+
+          <div class="navbar-brand cart-tab"  id="cart-tab">
+            <div class="cart-head">
+              <h2>Shopping cart</h2>
+              <button class="cart-close-btn">X</button>
+            </div>
+            <ul id="cart-items">
+                <!--Food goes here for the fatass-->
+            </ul>
+
+            <div class="cart-total">Total: <span id="total-price">0</span> VND</div>
+            <div class="get-time-btn">Get waiting time</div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="container mt-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Menu</li>
+      </ol>
+    </nav>
+
+    <!-- Menu Container -->
+    <div class="container my-5">
+      <h1 class="text-center mb-5">Menu</h1>
+
+      <!-- Food Items Grid -->
+      <div class="row g-4">
+        <!-- Bánh Mì Card -->
+        <div class="col-lg-4 col-md-6">
+          <div class="menu-card">
+            <div class="menu-image-container">
+              <img src="img/banh_mi.jpg" alt="Bánh Mì" class="menu-image" />
+            </div>
+            <div class="menu-content">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h5 class="menu-title">Bánh Mì</h5>
+                <span class="menu-price">20.000 VND</span>
+              </div>
+              <p class="menu-description">
+                Vietnamese baguette with various fillings such as pate, pork,
+                and fresh herbs
+              </p>
+              <button class="btn-add-cart" onclick="addItem(this.parentElement.parentElement)">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trà Sữa Card -->
+        <div class="col-lg-4 col-md-6">
+          <div class="menu-card">
+            <div class="menu-image-container">
+              <img src="img/tra_sua.jpg" alt="Trà Sữa" class="menu-image" />
+            </div>
+            <div class="menu-content">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h5 class="menu-title">Trà Sữa</h5>
+                <span class="menu-price">30.000 VND</span>
+              </div>
+              <p class="menu-description">
+                Traditional Vietnamese milk tea with tapioca pearls
+              </p>
+              <button class="btn-add-cart" onclick="addItem(this.parentElement.parentElement)">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cà Phê Card -->
+        <div class="col-lg-4 col-md-6">
+          <div class="menu-card">
+            <div class="menu-image-container">
+              <img src="img/ca_phe.jpg" alt="Cà Phê Sữa" class="menu-image" />
+            </div>
+            <div class="menu-content">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h5 class="menu-title">Cà Phê Sữa</h5>
+                <span class="menu-price">25.000 VND</span>
+              </div>
+              <p class="menu-description">
+                Vietnamese coffee with condensed milk
+              </p>
+              <button class="btn-add-cart" onclick="addItem(this.parentElement.parentElement)">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script>
+      function toggleCart(button) {
+        button.classList.toggle("active");
+        button.textContent = button.classList.contains("active")
+          ? "Remove from Cart"
+          : "Add to Cart";
+      }
+    </script>
+    <script src="../js/main.js"></script>
+  </body>
+</html>
