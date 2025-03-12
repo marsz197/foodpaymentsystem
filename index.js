@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js'
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js'
 import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
 
 
@@ -109,9 +109,20 @@ if (signinForm) {
 //get user
 auth.onAuthStateChanged((user) => {
   if (user) {
-      getUserData(user.uid);
+    getUserData(user.uid);
+    document.getElementById("loginText").innerHTML = "Sign Out"
+    document.getElementById("loginText").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        console.log("User signed out successfully");
+        localStorage.removeItem("user"); // Clear user data
+        window.location.href = "signin.html"; // Redirect to login page
+      }).catch((error) => {
+        console.error("Sign out error:", error);
+      });
+    })
   }
 });
+//signout 
 async function getUserData(uid) {
   try {
     if (!uid) {
