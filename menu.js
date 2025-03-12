@@ -1,3 +1,24 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+import { getAuth } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js'
+import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
+
+
+// Load environment variables
+const firebaseConfig = {
+  apiKey: "AIzaSyCV49Xr9GECNH5O9jWt0Nib4AyWNPxXUkA",
+  authDomain: "food-payment-sys-firebase-app.firebaseapp.com",
+  projectId: "food-payment-sys-firebase-app",
+  storageBucket: "food-payment-sys-firebase-app.firebasestorage.app",
+  messagingSenderId: "1041294912760",
+  appId: "1:1041294912760:web:576bb9348325d840359f0d"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+
 document.addEventListener('DOMContentLoaded', () => {
     let cartIcon = document.getElementById("cart-icon");
     let cartModel = document.querySelector(".navbar-brand.cart-tab");
@@ -19,10 +40,9 @@ let itemCount = 0;
 
 window.onload = function () { updateCartCount(); }
 
-
+window.changeQuantity = changeQuantity
 function changeQuantity(name, delta) {
     const item = cartItems.find((item) => item.name === name);
-
     if (item) {
         item.quantity += delta;
         if (item.quantity <= 0) {
@@ -35,7 +55,7 @@ function changeQuantity(name, delta) {
 }
 
 
-
+window.addItem = addItem
 function addItem(card) {
     const name = card.querySelector('.menu-title').textContent;
     const priceText = card.querySelector('.menu-price').textContent
@@ -60,104 +80,59 @@ function addItem(card) {
     updateLocalStorage();
     updateCartCount();
 }
-
+window.updateLocalStorage = updateLocalStorage
 //Keep food on refresh
-function updateLocalStorage() {
+async function updateLocalStorage() {
     localStorage.setItem("cart-items", JSON.stringify(cartItems));
+    const user = auth.currentUser;
+    if (!user) {
+        console.error("User not authenticated");
+        return;
+    }
+    const userCartRef = doc(db, "users", user.uid);
+    await setDoc(userCartRef, {cartItems},{merge:true});
 }
 
 //Cart display
+window.updateCartCount = updateCartCount
 function updateCartCount() {
     const cartList = document.getElementById("cart-items");
     const totalElement = document.getElementById("total-price");
-    const countElement = document.getElementById("cart-count")
+    const countElement = document.getElementById("cart-count");
 
-    cartList.innerHTML = '';
-    total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    itemCount = cartItems.reduce((count, item) => count + item.quantity, 0)
+    cartList.innerHTML = "";
+    total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
-    cartItems.forEach(item => {
+    cartItems.forEach((item) => {
         const li = document.createElement("li");
-        li.classList = 'cart-items';
+        li.classList = "cart-items";
         li.innerHTML = `
-        <img src="${item.img}" alt="${item.name}" class="cart-item-image" />
-        <div class="cart-item-details">
-          <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-price">${item.price.toLocaleString('de-DE')} x ${item.quantity}</div>
-        </div>
-  
-        <div class="quantity-controls">
-          <button onclick="changeQuantity('${item.name}', 1)">+</button>
-          <button onclick="changeQuantity('${item.name}', -1)">-</button>
-        </div>
-        <button class="remove-item" onclick="removeItem('${item.name}')">x</button>
+            <img src="${item.img}" alt="${item.name}" class="cart-item-image" />
+            <div class="cart-item-details">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-price">${item.price.toLocaleString("de-DE")} x ${item.quantity}</div>
+            </div>
+            <div class="quantity-controls">
+              <button onclick="changeQuantity('${item.name}', 1)">+</button>
+              <button onclick="changeQuantity('${item.name}', -1)">-</button>
+            </div>
+            <button class="remove-item" onclick="removeItem('${item.name}')">x</button>
         `;
         cartList.appendChild(li);
-
-
     });
-    totalElement.textContent = total.toLocaleString('de-DE');
+
+    totalElement.textContent = total.toLocaleString("de-DE");
     countElement.textContent = itemCount;
 }
-
+window.removeItem = removeItem;
 function removeItem(name) {
     cartItems = cartItems.filter((item) => item.name !== name);
     updateLocalStorage();
     updateCartCount();
 }
 
-
-// Initialize cart
-const cart = new ShoppingCart();
-
-// Menu card functionality
-function initializeMenuCards() {
-    const menuCards = document.querySelectorAll('.menu-card');
-
-    menuCards.forEach(card => {
-        // Add hover effect to entire card
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px)';
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0)';
-        });
-    });
-}
-
-// Cart button functionality
-function toggleCart(button) {
-    const menuCard = button.closest('.menu-card');
-    const menuTitle = menuCard.querySelector('.menu-title').textContent;
-    const menuPrice = menuCard.querySelector('.menu-price').textContent;
-
-    button.classList.toggle('active');
-
-    const isActive = button.classList.contains('active');
-    button.textContent = isActive ? 'Remove from Cart' : 'Add to Cart';
-
-    // Add ripple effect
-    const ripple = document.createElement('span');
-    ripple.classList.add('ripple');
-    button.appendChild(ripple);
-    const rect = button.getBoundingClientRect();
-    ripple.style.left = `${event.clientX - rect.left}px`;
-    ripple.style.top = `${event.clientY - rect.top}px`;
-
-    setTimeout(() => ripple.remove(), 1000);
-
-    // Update cart
-    if (isActive) {
-        cart.addItem({
-            id: Date.now(),
-            title: menuTitle,
-            price: menuPrice
-        });
-    } else {
-        cart.removeItem({
-            title: menuTitle,
-            price: menuPrice
-        });
-    }
-}
+//getTimeFunction
+getTime = document.getElementById("getTime")
+getTime.addEventListener("onclick",getTime())
+// still working .....

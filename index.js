@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js'
-import { getFirestore, collection, addDoc, getDocs, setDoc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
+import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
 
 
 // Load environment variables
@@ -58,10 +58,11 @@ if (signupForm) {
       document.getElementById('error-message').innerHTML = "User created successfully !!!"
       document.getElementById('error-message').style.color = "green"
 
-      const docRef = await addDoc(collection(db, "users",user.uid), {
+      const docRef = doc(db, "users", user.uid);
+      await setDoc(docRef, {
         uid: user.uid,
         user_email: user.email,
-        created_at: new Date(),
+        created_at: new Date().toLocaleDateString(),
         user_role: "Customer"
       });
       console.log("User saved to Firestore with ID:", docRef.id);
@@ -73,6 +74,7 @@ if (signupForm) {
       const errorMessage = error.message;
       console.error("Error creating user:", errorCode, errorMessage);
       document.getElementById('error-message').innerHTML = errorCode + errorMessage;
+      document.getElementById('error-message').style.color = "red"
     }
   });
 }
@@ -91,7 +93,7 @@ if (signinForm) {
       console.log("User signed in:", user);
       document.getElementById('error-message').innerHTML = "User login successfully !!!"
       document.getElementById('error-message').style.color = "green"
-      localStorage.setItem("user",JSON.stringify(user.uid))
+      localStorage.setItem("user", JSON.stringify(user.uid))
       setTimeout(() => { window.location.replace("index.html") }, 4000)
       // Redirect to the app's main content or a user dashboard.
     } catch (error) {
@@ -103,22 +105,28 @@ if (signinForm) {
     }
   });
 }
-if(localStorage.getItem("user")){
-  const uid = JSON.parse(localStorage.getItem("user"))
-  getUserData(uid)
-  async function getUserData(uid) {
-    try {
-        const userRef = doc(db, "users", uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-            console.log("User Data:", userSnap.data());
-            return userSnap.data();
-        } else {
-            console.log("No such user found!");
-            return null;
-        }
-    } catch (error) {
-        console.error("Error fetching user data:", error);
+//get user
+auth.onAuthStateChanged((user) => {
+  if (user) {
+      getUserData(user.uid);
+  }
+});
+async function getUserData(uid) {
+  try {
+    if (!uid) {
+      console.error("No UID found in localStorage");
+      return;
     }
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      console.log("User Data:", userSnap.data());
+      return userSnap.data();
+    } else {
+      console.log("No such user found!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
   }
 }
