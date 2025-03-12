@@ -94,6 +94,7 @@
       // Display an error message to the user.  Common errors include wrong password, etc.
     }
   });
+console.log("Load sucessfully")
 // shoppingcart js
 document.addEventListener('DOMContentLoaded', () => {
   let cartIcon = document.getElementById("cart-icon");
@@ -258,7 +259,5 @@ function toggleCart(button) {
     });
   }
 }
-
-
 
 
