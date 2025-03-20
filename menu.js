@@ -1,4 +1,9 @@
 // Import the functions you need from the SDKs you need
+<<<<<<< HEAD
+import {app, auth, db} from './index.js'
+import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
+
+=======
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getAuth,signOut } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js'
 import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
@@ -18,6 +23,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+>>>>>>> refs/remotes/origin/main
 document.addEventListener('DOMContentLoaded', () => {
     let cartIcon = document.getElementById("cart-icon");
     let cartModel = document.querySelector(".navbar-brand.cart-tab");
@@ -36,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let cartItems = JSON.parse(localStorage.getItem("cart-items")) || [];
 let total = 0;
 let itemCount = 0;
+let totalTime = 0;
 
 window.onload = function () { updateCartCount(); }
 
@@ -57,11 +64,16 @@ function changeQuantity(name, delta) {
 window.addItem = addItem
 function addItem(card) {
     const name = card.querySelector('.menu-title').textContent;
+    const time = card.querySelector('.prep-time').textContent
+        .replace('minutes', '')
+        .trim();
     const priceText = card.querySelector('.menu-price').textContent
         .replace('.', '')
         .replace('VND', '')
         .trim();
+
     const price = parseInt(priceText)
+    const preptime = parseInt(time)
     const prodImg = card.querySelector('.menu-image').src;
 
     const existingItem = cartItems.find((item) => item.name === name)
@@ -71,6 +83,7 @@ function addItem(card) {
         cartItems.push({
             name,
             price,
+            preptime,
             quantity: 1,
             img: prodImg
         });
@@ -85,7 +98,7 @@ async function updateLocalStorage() {
     localStorage.setItem("cart-items", JSON.stringify(cartItems));
     const user = auth.currentUser;
     if (!user) {
-        console.error("User not authenticated");
+        console.log("User not authenticated");
         return;
     }
     const userCartRef = doc(db, "users", user.uid);
@@ -98,10 +111,12 @@ function updateCartCount() {
     const cartList = document.getElementById("cart-items");
     const totalElement = document.getElementById("total-price");
     const countElement = document.getElementById("cart-count");
+    const timeElement = document.getElementById("total-time");
 
     cartList.innerHTML = "";
     total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+    totalTime = cartItems.reduce((sum, item) =>  sum + item.preptime * item.quantity, 0);
 
     cartItems.forEach((item) => {
         const li = document.createElement("li");
@@ -123,6 +138,7 @@ function updateCartCount() {
 
     totalElement.textContent = total.toLocaleString("de-DE");
     countElement.textContent = itemCount;
+    timeElement.textContent = totalTime;
 }
 window.removeItem = removeItem;
 function removeItem(name) {
