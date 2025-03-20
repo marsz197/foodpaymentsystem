@@ -1,4 +1,4 @@
-let sampleLocation = {
+const VGULocation = {
     "canteen":[{lat:11.1072691,lng:106.6130784}]
 }
 document.getElementById('get-location').addEventListener('click', () => {
@@ -57,3 +57,33 @@ function calculateDistance(location1, location2) {
         }
       });
   }
+
+  //init map
+  function initMap(VGULocation) {
+  
+    // Create a map centered at the default location
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: VGULocation,
+      zoom: 15, 
+      styles: [
+        {
+          featureType: "poi",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }], // Hide points of interest labels
+        },
+        {
+          featureType: "transit",
+          elementType: "labels",
+          stylers: [{ visibility: "off" }], // Hide transit labels
+        },
+      ],
+    });
+  
+    // Add a marker at the default location
+    new google.maps.Marker({
+      position: VGULocation,
+      map: map,
+      title: "VGU Canteen",
+    });
+  }
+  

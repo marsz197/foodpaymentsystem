@@ -119,6 +119,12 @@ auth.onAuthStateChanged((user) => {
         console.error("Sign out error:", error);
       });
     })
+  }else{
+    document.getElementById("loginText").innerHTML = "Sign In"
+    document.getElementById("loginText").addEventListener("click", () => {
+      window.location.href = "signin.html"; 
+    })
+    localStorage.clear()
   }
 });
 //signout 
