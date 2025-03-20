@@ -18,7 +18,7 @@ function calculateDistance(location1, location2) {
 
 // Function to calculate travel time using Google Maps Directions API
 function calculateTravelTime(origin, destination) {
-  const apiKey = "YOUR_GOOGLE_MAPS_API_KEY";
+  const apiKey = "AIzaSyCV49Xr9GECNH5O9jWt0Nib4AyWNPxXUkA";
   const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}&key=${apiKey}`;
   
   return fetch(url)
@@ -47,14 +47,15 @@ document.getElementById('get-location').addEventListener('click', () => {
                 console.error(error.message)
             }
         )
-        let distance = calculateDistance(sampleLocation.canteen,userLocation)
-        let timeTravel = calculateTravelTime(userLocation,sampleLocation.canteen)
+        let distance = calculateDistance(VGULocation,userLocation)
+        let timeTravel = calculateTravelTime(userLocation,VGULocation)
         map.setCenter(userLocation)
         userMarker = new google.maps.Marker({
             position: userLocation,
             map: map,
             title: "Your Location",
         })
+        document.getElementById('distance&time').innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Travel Time: ${timeTravel}'`
         console.log("User location:",userLocation)
         
     } else {
