@@ -65,10 +65,7 @@ document.getElementById('get-location').addEventListener('click', async () => {
     }
     localStorage.setItem("userData", JSON.stringify(userData))
     const userDataRef = doc(db, "users", user.uid);
-    await setDoc(userDataRef, {
-      distance: distance,
-      timeTravel: timeTravel
-    });
+    await setDoc(userDataRef,{userData},{merge:true});
     console.log("User location:", userLocation)
 
   } else {
