@@ -1,10 +1,7 @@
 // Import the functions you need from the SDKs you need
-<<<<<<< HEAD
 import {app, auth, db} from './index.js'
 import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
 
-=======
->>>>>>> refs/remotes/origin/main
 document.addEventListener('DOMContentLoaded', () => {
     let cartIcon = document.getElementById("cart-icon");
     let cartModel = document.querySelector(".navbar-brand.cart-tab");
@@ -129,6 +126,8 @@ function removeItem(name) {
 }
 
 //getTimeFunction
-getTime = document.getElementById("getTime")
-getTime.addEventListener("onclick",getTime())
+if(window.location.pathname == "/menu.html"){
+    getTime = document.getElementById("getTime")
+    getTime.addEventListener("onclick",getTime())
+}
 // still working .....
