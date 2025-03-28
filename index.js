@@ -3,14 +3,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebas
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js';
 import { getFirestore, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js';
 
-// Firebase configuration
+// Load environment variables (only for local development)
+if (typeof process !== "undefined" && process.env) {
+  require("dotenv").config();
+}
+
+// Firebase configuration using environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyCV49Xr9GECNH5O9jWt0Nib4AyWNPxXUkA",
-  authDomain: "food-payment-sys-firebase-app.firebaseapp.com",
-  projectId: "food-payment-sys-firebase-app",
-  storageBucket: "food-payment-sys-firebase-app.firebasestorage.app",
-  messagingSenderId: "1041294912760",
-  appId: "1:1041294912760:web:576bb9348325d840359f0d"
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID
 };
 
 // Initialize Firebase
