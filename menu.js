@@ -1,11 +1,18 @@
-// Import the functions you need from the SDKs you need
-import {app, auth, db} from './index.js'
-import { getFirestore, collection, addDoc, getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js'
+// ========================== Firebase Imports ==========================
+import { auth, db } from './index.js';
+import { getDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js';
 
+// ========================== Global Variables ==========================
+let cartItems = JSON.parse(localStorage.getItem("cart-items")) || [];
+let total = 0;
+let itemCount = 0;
+let foodTime = 0;
+
+// ========================== DOMContentLoaded ==========================
 document.addEventListener('DOMContentLoaded', () => {
-    let cartIcon = document.getElementById("cart-icon");
-    let cartModel = document.querySelector(".navbar-brand.cart-tab");
-    let cartClose = document.querySelector(".cart-close-btn");
+    const cartIcon = document.getElementById("cart-icon");
+    const cartModel = document.querySelector(".navbar-brand.cart-tab");
+    const cartClose = document.querySelector(".cart-close-btn");
 
     cartIcon.onclick = () => {
         cartModel.classList.add("open-cart");
@@ -16,30 +23,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 });
 
+// ========================== Window Load ==========================
+window.onload = async function () {
+    updateCartCount(); // Only update the cart count initially
+};
 
-let cartItems = JSON.parse(localStorage.getItem("cart-items")) || [];
-let total = 0;
-let itemCount = 0;
-let totalTime = 0;
-
-window.onload = function () { updateCartCount(); }
-
-window.changeQuantity = changeQuantity
-function changeQuantity(name, delta) {
-    const item = cartItems.find((item) => item.name === name);
-    if (item) {
-        item.quantity += delta;
-        if (item.quantity <= 0) {
-            removeItem(name);
-        } else {
-            updateLocalStorage();
-            updateCartCount();
-        }
+// ========================== Firebase Authentication Listener ==========================
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        console.log("User is signed in:", user);
+        syncCartWithFirebase(); // Sync cart after user is detected
+    } else {
+        console.log("No user is signed in");
     }
-}
+});
 
-
-window.addItem = addItem
+// ========================== Cart Functions ==========================
+window.addItem = addItem;
 function addItem(card) {
     const name = card.querySelector('.menu-title').textContent;
     const time = card.querySelector('.prep-time').textContent
@@ -50,13 +50,13 @@ function addItem(card) {
         .replace('VND', '')
         .trim();
 
-    const price = parseInt(priceText)
-    const preptime = parseInt(time)
+    const price = parseInt(priceText);
+    const preptime = parseInt(time);
     const prodImg = card.querySelector('.menu-image').src;
 
-    const existingItem = cartItems.find((item) => item.name === name)
+    const existingItem = cartItems.find((item) => item.name === name);
     if (existingItem) {
-        existingItem.quantity += 1
+        existingItem.quantity += 1;
     } else {
         cartItems.push({
             name,
@@ -70,8 +70,29 @@ function addItem(card) {
     updateLocalStorage();
     updateCartCount();
 }
-window.updateLocalStorage = updateLocalStorage
-//Keep food on refresh
+
+window.changeQuantity = changeQuantity;
+function changeQuantity(name, delta) {
+    const item = cartItems.find((item) => item.name === name);
+    if (item) {
+        item.quantity += delta;
+        if (item.quantity <= 0) {
+            removeItem(name);
+        } else {
+            updateLocalStorage();
+            updateCartCount();
+        }
+    }
+}
+
+window.removeItem = removeItem;
+function removeItem(name) {
+    cartItems = cartItems.filter((item) => item.name !== name);
+    updateLocalStorage();
+    updateCartCount();
+}
+
+window.updateLocalStorage = updateLocalStorage;
 async function updateLocalStorage() {
     localStorage.setItem("cart-items", JSON.stringify(cartItems));
     const user = auth.currentUser;
@@ -80,11 +101,10 @@ async function updateLocalStorage() {
         return;
     }
     const userCartRef = doc(db, "users", user.uid);
-    await setDoc(userCartRef, {cartItems},{merge:true});
+    await setDoc(userCartRef, { cartItems }, { merge: true });
 }
 
-//Cart display
-window.updateCartCount = updateCartCount
+window.updateCartCount = updateCartCount;
 function updateCartCount() {
     const cartList = document.getElementById("cart-items");
     const totalElement = document.getElementById("total-price");
@@ -94,7 +114,8 @@ function updateCartCount() {
     cartList.innerHTML = "";
     total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
-    totalTime = cartItems.reduce((sum, item) =>  sum + item.preptime * item.quantity, 0);
+    foodTime = cartItems.reduce((sum, item) => sum + item.preptime * item.quantity, 0);
+    localStorage.setItem("foodTime", JSON.stringify(foodTime));
 
     cartItems.forEach((item) => {
         const li = document.createElement("li");
@@ -116,18 +137,93 @@ function updateCartCount() {
 
     totalElement.textContent = total.toLocaleString("de-DE");
     countElement.textContent = itemCount;
-    timeElement.textContent = totalTime;
-}
-window.removeItem = removeItem;
-function removeItem(name) {
-    cartItems = cartItems.filter((item) => item.name !== name);
-    updateLocalStorage();
-    updateCartCount();
+    timeElement.textContent = foodTime;
 }
 
-//getTimeFunction
-if(window.location.pathname == "/menu.html"){
-    getTime = document.getElementById("getTime")
-    getTime.addEventListener("onclick",getTime())
+// ========================== Checkout Function ==========================
+document.getElementById("checkout").onclick = async () => {
+    const distanceTimeElement = document.getElementById("distance&time");
+    if (window.location.pathname !== "/index.html") {
+        alert("Please checkout from the home page.");
+        return;
+    }
+    if (!distanceTimeElement.innerHTML) {
+        alert("Please show your location to checkout.");
+        return;
+    }
+    try {
+        // Check if the user is authenticated
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Please sign in to complete your order.");
+            return;
+        }
+
+        // Retrieve distance and travel time from localStorage
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        const distance = userData?.distance || 0; // Default to 0 if not available
+        const timeTravel = JSON.parse(localStorage.getItem("travelTime")) || 0;
+        const foodTime = JSON.parse(localStorage.getItem("foodTime")) || 0;
+        const totalTime = timeTravel + foodTime * 60;
+
+        // Update travel time in the UI
+        distanceTimeElement.innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(totalTime)}`;
+        console.log("Distance and travel time updated in the UI:", distance, totalTime);
+
+        // Clear the cart in Firebase
+        const userCartRef = doc(db, "users", user.uid);
+        await setDoc(userCartRef, { cartItems: [] }, { merge: true });
+
+        // Clear the cart locally
+        localStorage.removeItem("cart-items");
+        cartItems = [];
+        updateCartCount();
+
+        console.log("Order placed successfully!");
+        alert("Order placed successfully!");
+    } catch (error) {
+        console.error("Error during checkout:", error);
+        alert(`An error occurred during checkout: ${error.message}. Please try again.`);
+    }
+};
+
+// ========================== Sync Cart with Firebase ==========================
+async function syncCartWithFirebase() {
+    const user = auth.currentUser; // Use auth.currentUser to get the signed-in user
+    if (!user) {
+        console.log("User not authenticated");
+        return;
+    }
+
+    try {
+        const userCartRef = doc(db, "users", user.uid);
+        const userCartSnapshot = await getDoc(userCartRef);
+
+        if (userCartSnapshot.exists()) {
+            const firebaseCartItems = userCartSnapshot.data().cartItems || [];
+
+            // Replace local cart items with Firebase cart items
+            cartItems = firebaseCartItems;
+
+            // Update local storage and UI
+            updateLocalStorage();
+            updateCartCount();
+        } else {
+            console.log("No cart data found in Firebase");
+        }
+    } catch (error) {
+        console.error("Error syncing cart with Firebase:", error);
+    }
 }
-// still working .....
+
+// ========================== Helper Functions ==========================
+function formatDuration(seconds) {
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) {
+        return `${minutes} mins`;
+    } else {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        return `${hours} hour${hours !== 1 ? 's' : ''} ${remainingMinutes} mins`;
+    }
+}
