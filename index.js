@@ -10,12 +10,13 @@ if (typeof process !== "undefined" && process.env) {
 
 // Firebase configuration using environment variables
 const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  projectId: process.env.PROJECT_ID,
-  storageBucket: process.env.STORAGE_BUCKET,
-  messagingSenderId: process.env.MESSAGING_SENDER_ID,
-  appId: process.env.APP_ID
+  apiKey: "AIzaSyCV49Xr9GECNH5O9jWt0Nib4AyWNPxXUkA",
+  authDomain: "food-payment-sys-firebase-app.firebaseapp.com",
+  databaseURL: "https://food-payment-sys-firebase-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "food-payment-sys-firebase-app",
+  storageBucket: "food-payment-sys-firebase-app.firebasestorage.app",
+  messagingSenderId: "1041294912760",
+  appId: "1:1041294912760:web:576bb9348325d840359f0d"
 };
 
 // Initialize Firebase
