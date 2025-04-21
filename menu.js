@@ -162,14 +162,14 @@ document.getElementById("checkout").onclick = async () => {
 
         // Retrieve distance and travel time from localStorage
         const userData = JSON.parse(localStorage.getItem("userData"));
+        const foodTime = JSON.parse(localStorage.getItem("foodTime")) || 0;
         const distance = userData.distance || 0; // Default to 0 if not available
         const travelTime = JSON.parse(localStorage.getItem("travelTime")) || 0;
         const previousFoodTime = JSON.parse(localStorage.getItem("previousFoodTime")) || 0;
         // Save the food time to localStorage
-        JSON.stringify(localStorage.setItem("previousFoodTime", foodTime + previousFoodTime));
+        localStorage.setItem("previousFoodTime", previousFoodTime + foodTime);
         console.log("Order placed successfully!");
-        distanceTimeElement.innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(travelTime + previousFoodTime * 60)}`;
-        distanceTimeElement.innerHTML = `Distance: loading... <br>Total Time: loading...`;
+        distanceTimeElement.innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(travelTime+ (foodTime + previousFoodTime) * 60)}`;
         // Clear the cart in Firebase
         const userCartRef = await doc(db, "users", user.uid);
         await setDoc(userCartRef, { cartItems: [] }, { merge: true });

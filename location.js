@@ -190,11 +190,11 @@ function updateUI(userLocation, distance, timeTravel) {
     document.getElementById("distance&time").innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(timeTravel+foodTime*60)}`;
 }
 
-async function saveUserData(position,distance, timeTravel) {
+async function saveUserData(location,distance, timeTravel) {
     const currentTime = new Date();
     const userData = {
         date: currentTime.toISOString(),
-        location: position,
+        location: location,
         distance: distance,
         timeTravel: timeTravel,
     };
