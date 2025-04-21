@@ -8,7 +8,7 @@ const VGULocation = [106.61332538342361, 11.107187043321616]; // VGU Canteen Loc
 let map; // Mapbox map instance
 let isTracking = false; // Tracking status
 let userMarker; // Marker for the user's location
-
+let watchId = null; // Watch ID for geolocation
 // ========================== Mapbox Initialization ==========================
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFyc3oxOTciLCJhIjoiY204cGRkNm1pMDlxNDJxcG42OWZwMzhlZiJ9.zB2O5s9zGGtpIBzCRUKX7g'; // Replace with your token
 
@@ -48,6 +48,9 @@ function initMap() {
 async function handleGetLocation(geolocateControl) {
     if ("geolocation" in navigator) {
         if (!isTracking) {
+            console.log("Tracking started.");
+            isTracking = true;
+            document.getElementById("get-location").innerHTML = "Stop Tracking";
             // Start tracking
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
@@ -56,7 +59,6 @@ async function handleGetLocation(geolocateControl) {
                     const timeTravel = await calculateTravelTime(userLocation, VGULocation);
                     geolocateControl.trigger(); // Trigger geolocation to get the user's location
                     updateMap(userLocation);
-                    updateUI(userLocation, distance, timeTravel);
                     saveUserData(userLocation,distance, timeTravel);
 
                     // Start real-time distance checking
@@ -67,13 +69,15 @@ async function handleGetLocation(geolocateControl) {
                 }
             );
         } else {
+            console.log("Tracking stopped.");
             stopTracking(geolocateControl);
         }
     }
 }
 
-async function startRealTimeDistanceCheck(geolocateControl) {
-    const watchId = navigator.geolocation.watchPosition(
+function startRealTimeDistanceCheck(geolocateControl) {
+    if(!isTracking) return; // Stop if not tracking
+    watchId = navigator.geolocation.watchPosition(
         async (position) => {
             const currentLocation = [position.coords.longitude, position.coords.latitude];
             const currentDistance = calculateDistance(currentLocation, VGULocation);
@@ -102,14 +106,18 @@ async function startRealTimeDistanceCheck(geolocateControl) {
 function stopTracking(geolocateControl) {
     isTracking = false;
     document.getElementById("get-location").innerHTML = "Get Location";
-    // Remove the user marker if it exists
-    if (userMarker) {
-        userMarker.remove();
+  
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
     }
-    // Remove the GeolocateControl from the map
-    geolocateControl.on('trackuserlocationend',() => {console.log("Tracking stopped.");})
-}
-
+    if (userMarker) {
+      userMarker.remove();
+      userMarker = null;
+    }
+    map.removeControl(geolocateControl);
+  }
+  
 // ========================== Helper Functions ==========================
 function calculateDistance(location1, location2) {
     const toRadians = (degrees) => (degrees * Math.PI) / 180;
@@ -181,10 +189,9 @@ function updateUI(userLocation, distance, timeTravel) {
     if (!vguLocationElement.innerHTML.includes("Your Location")) {
         vguLocationElement.innerHTML += `<br><br/>Your Location: ${userLocation}`;
     }
-
-    isTracking = true;
-    document.getElementById("get-location").innerHTML = "Stop Tracking";
+    
     document.getElementById("distance&time").innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(timeTravel+foodTime*60)}`;
+    console.log("updated")
 }
 
 async function saveUserData(location,distance, timeTravel) {
