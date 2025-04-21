@@ -163,27 +163,20 @@ document.getElementById("checkout").onclick = async () => {
         // Retrieve distance and travel time from localStorage
         const userData = JSON.parse(localStorage.getItem("userData"));
         const distance = userData.distance || 0; // Default to 0 if not available
-        const timeTravel = JSON.parse(localStorage.getItem("travelTime")) || 0;
+        const travelTime = JSON.parse(localStorage.getItem("travelTime")) || 0;
         const previousFoodTime = JSON.parse(localStorage.getItem("previousFoodTime")) || 0;
-        const totalTime = timeTravel + previousFoodTime * 60;
         // Save the food time to localStorage
         JSON.stringify(localStorage.setItem("previousFoodTime", foodTime + previousFoodTime));
-        // Update travel time in the UI
-        distanceTimeElement.innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(totalTime)}`;
-        console.log("Distance and travel time updated in the UI:", distance, totalTime);
-
+        console.log("Order placed successfully!");
+        distanceTimeElement.innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(travelTime + previousFoodTime * 60)}`;
+        distanceTimeElement.innerHTML = `Distance: loading... <br>Total Time: loading...`;
         // Clear the cart in Firebase
-        const userCartRef = doc(db, "users", user.uid);
+        const userCartRef = await doc(db, "users", user.uid);
         await setDoc(userCartRef, { cartItems: [] }, { merge: true });
-
         // Clear the cart locally
         localStorage.removeItem("cart-items");
         cartItems = [];
         updateCartCount();
-
-        console.log("Order placed successfully!");
-        distanceTimeElement.innerHTML = `Distance: loading... <br>Total Time: loading...`;
-        alert("Order placed successfully!");
     } catch (error) {
         console.error("Error during checkout:", error);
         alert(`An error occurred during checkout: ${error.message}. Please try again.`);
