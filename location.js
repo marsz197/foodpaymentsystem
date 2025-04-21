@@ -102,15 +102,12 @@ async function startRealTimeDistanceCheck(geolocateControl) {
 function stopTracking(geolocateControl) {
     isTracking = false;
     document.getElementById("get-location").innerHTML = "Get Location";
-
     // Remove the user marker if it exists
     if (userMarker) {
         userMarker.remove();
     }
-
     // Remove the GeolocateControl from the map
-    map.removeControl(geolocateControl);
-    console.log("Tracking stopped.");
+    geolocateControl.on('trackuserlocationend',() => {console.log("Tracking stopped.");})
 }
 
 // ========================== Helper Functions ==========================
