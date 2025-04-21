@@ -221,19 +221,19 @@ auth.onAuthStateChanged((user) => {
     loginTextElement.addEventListener("click", () => {
       signOut(auth).then(() => {
         console.log("User signed out successfully");
-        localStorage.removeItem("user"); // Clear user data
+        localStorage.clear(); // Clear all local storage
         window.location.href = "signin.html"; // Redirect to login page
       }).catch((error) => {
         console.error("Sign out error:", error);
       });
     });
   } else {
-    console.log("No user is signed in");
-    const loginTextElement = document.getElementById("loginText");
-    loginTextElement.innerHTML = "Sign In";
-    alert("Please Sign In to continue");
-    window.location.href = "signin.html"; // Redirect to login page
-    localStorage.clear();
+    if (window.location.pathname !== "/signin.html") {
+      console.log("No user is signed in");
+      alert("Please Sign In to continue");
+      window.location.href = "signin.html"; // Redirect to login page
+      localStorage.clear();
+    }
   }
 });
 

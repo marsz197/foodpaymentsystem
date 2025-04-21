@@ -143,6 +143,7 @@ function updateCartCount() {
 // ========================== Checkout Function ==========================
 document.getElementById("checkout").onclick = async () => {
     const distanceTimeElement = document.getElementById("distance&time");
+    
     if (window.location.pathname !== "/index.html") {
         alert("Please checkout from the home page.");
         return;
@@ -161,11 +162,12 @@ document.getElementById("checkout").onclick = async () => {
 
         // Retrieve distance and travel time from localStorage
         const userData = JSON.parse(localStorage.getItem("userData"));
-        const distance = userData?.distance || 0; // Default to 0 if not available
+        const distance = userData.distance || 0; // Default to 0 if not available
         const timeTravel = JSON.parse(localStorage.getItem("travelTime")) || 0;
-        const foodTime = JSON.parse(localStorage.getItem("foodTime")) || 0;
-        const totalTime = timeTravel + foodTime * 60;
-
+        const previousFoodTime = JSON.parse(localStorage.getItem("previousFoodTime")) || 0;
+        const totalTime = timeTravel + previousFoodTime * 60;
+        // Save the food time to localStorage
+        JSON.stringify(localStorage.setItem("previousFoodTime", foodTime + previousFoodTime));
         // Update travel time in the UI
         distanceTimeElement.innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(totalTime)}`;
         console.log("Distance and travel time updated in the UI:", distance, totalTime);
@@ -180,6 +182,7 @@ document.getElementById("checkout").onclick = async () => {
         updateCartCount();
 
         console.log("Order placed successfully!");
+        distanceTimeElement.innerHTML = `Distance: loading... <br>Total Time: loading...`;
         alert("Order placed successfully!");
     } catch (error) {
         console.error("Error during checkout:", error);
@@ -218,9 +221,10 @@ async function syncCartWithFirebase() {
 
 // ========================== Helper Functions ==========================
 function formatDuration(seconds) {
-    const minutes = Math.round(seconds / 60);
+    const minutes = Math.floor(seconds / 60);
+    const remainedSeconds = Math.round(seconds - minutes * 60);
     if (minutes < 60) {
-        return `${minutes} mins`;
+        return `${minutes} mins and ${remainedSeconds} seconds`;
     } else {
         const hours = Math.floor(minutes / 60);
         const remainingMinutes = minutes % 60;

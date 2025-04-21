@@ -1,6 +1,7 @@
 // Import Firebase dependencies
 import { db } from "./index.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+import {auth } from "./index.js";
 
 // ========================== Global Variables ==========================
 const VGULocation = [106.61332538342361, 11.107187043321616]; // VGU Canteen Location [lng, lat]
@@ -53,10 +54,10 @@ async function handleGetLocation(geolocateControl) {
                     const userLocation = [position.coords.longitude, position.coords.latitude];
                     const distance = calculateDistance(userLocation, VGULocation);
                     const timeTravel = await calculateTravelTime(userLocation, VGULocation);
-
+                    geolocateControl.trigger(); // Trigger geolocation to get the user's location
                     updateMap(userLocation);
                     updateUI(userLocation, distance, timeTravel);
-                    saveUserData(distance, timeTravel);
+                    saveUserData(userLocation,distance, timeTravel);
 
                     // Start real-time distance checking
                     startRealTimeDistanceCheck(geolocateControl);
@@ -71,13 +72,12 @@ async function handleGetLocation(geolocateControl) {
     }
 }
 
-function startRealTimeDistanceCheck(geolocateControl) {
+async function startRealTimeDistanceCheck(geolocateControl) {
     const watchId = navigator.geolocation.watchPosition(
-        (position) => {
+        async (position) => {
             const currentLocation = [position.coords.longitude, position.coords.latitude];
             const currentDistance = calculateDistance(currentLocation, VGULocation);
-            const currentTimeTravel = calculateTravelTime(currentLocation, VGULocation);
-
+            const currentTimeTravel = await calculateTravelTime(currentLocation, VGULocation);
             // Check if the user is near the destination (within 3 meters)
             if (currentDistance <= 3) {
                 alert("You are very close to the destination (within 3 meters)!");
@@ -86,7 +86,7 @@ function startRealTimeDistanceCheck(geolocateControl) {
             }
 
             // Update distance in the UI
-            document.getElementById("distance&time").innerHTML = `Distance: ${currentDistance.toFixed(2)} meters<br>Total Time: ${formatDuration(currentTimeTravel)}`;
+            updateUI(currentLocation, currentDistance, currentTimeTravel);
         },
         (error) => {
             console.error("Error getting current position:", error.message);
@@ -140,7 +140,7 @@ async function calculateTravelTime(origin, destination) {
         if (data.routes && data.routes.length > 0) {
             const travelTime = data.routes[0].duration; // Duration in seconds
             localStorage.setItem("travelTime", JSON.stringify(travelTime)); // Save travel time to local storage
-            return formatDuration(travelTime);
+            return travelTime;
         } else {
             throw new Error("Unable to calculate travel time.");
         }
@@ -151,9 +151,10 @@ async function calculateTravelTime(origin, destination) {
 }
 
 function formatDuration(seconds) {
-    const minutes = Math.round(seconds / 60);
+    const minutes = Math.floor(seconds / 60);
+    const remainedSeconds = Math.round(seconds - minutes * 60);
     if (minutes < 60) {
-        return `${minutes} mins`;
+        return `${minutes} mins and ${remainedSeconds} seconds`;
     } else {
         const hours = Math.floor(minutes / 60);
         const remainingMinutes = minutes % 60;
@@ -179,20 +180,21 @@ function updateMap(userLocation) {
 
 function updateUI(userLocation, distance, timeTravel) {
     const vguLocationElement = document.getElementById("vguLocation");
+    const foodTime = JSON.parse(localStorage.getItem("previousFoodTime")) || 0;
     if (!vguLocationElement.innerHTML.includes("Your Location")) {
         vguLocationElement.innerHTML += `<br><br/>Your Location: ${userLocation}`;
     }
 
     isTracking = true;
     document.getElementById("get-location").innerHTML = "Stop Tracking";
-
-    document.getElementById("distance&time").innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(timeTravel)}`;
+    document.getElementById("distance&time").innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(timeTravel+foodTime*60)}`;
 }
 
-async function saveUserData(distance, timeTravel) {
+async function saveUserData(position,distance, timeTravel) {
     const currentTime = new Date();
     const userData = {
         date: currentTime.toISOString(),
+        location: position,
         distance: distance,
         timeTravel: timeTravel,
     };
@@ -204,7 +206,29 @@ async function saveUserData(distance, timeTravel) {
         await setDoc(userDataRef, { userData }, { merge: true });
     }
 }
-
+document.getElementById("copyVGU-location").addEventListener("click", () => {
+    navigator.clipboard.writeText(VGULocation).then(() => {
+        console.log("Location copied to clipboard:", VGULocation);
+        alert("Location copied to clipboard!");
+    }).catch((error) => {
+        console.error("Error copying location:", error);
+    });
+});
+document.getElementById("copyUser-location").addEventListener("click", () => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    
+    if (userData && userData.location) {
+        navigator.clipboard.writeText(userData.location).then(() => {
+            console.log("Location copied to clipboard:", userData.location);
+            alert("Location copied to clipboard!");
+        }).catch((error) => {
+            console.error("Error copying location:", error);
+        });
+    } else {
+        console.error("User data or location is not available.");
+        alert("Failed to copy location: User data is missing.");
+    }
+});
 // ========================== Initialize ==========================
 document.addEventListener('DOMContentLoaded', initMap);
 
