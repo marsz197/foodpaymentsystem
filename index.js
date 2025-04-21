@@ -228,10 +228,9 @@ auth.onAuthStateChanged((user) => {
       });
     });
   } else {
-    if (window.location.pathname !== "/foodpaymentsystem/signin.html") {
+    if (window.location.pathname !== "/signin.html") {
       console.log("No user is signed in");
       alert("Please Sign In to continue");
-      window.location.href = "signin.html"; // Redirect to login page
       localStorage.clear();
     }
   }
