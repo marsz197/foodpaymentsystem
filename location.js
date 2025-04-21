@@ -76,6 +76,7 @@ function startRealTimeDistanceCheck(geolocateControl) {
         (position) => {
             const currentLocation = [position.coords.longitude, position.coords.latitude];
             const currentDistance = calculateDistance(currentLocation, VGULocation);
+            const currentTimeTravel = calculateTravelTime(currentLocation, VGULocation);
 
             // Check if the user is near the destination (within 3 meters)
             if (currentDistance <= 3) {
@@ -85,7 +86,7 @@ function startRealTimeDistanceCheck(geolocateControl) {
             }
 
             // Update distance in the UI
-            document.getElementById("distance&time").innerHTML = `Distance: ${currentDistance.toFixed(2)} meters<br>Total Time: ${localStorage.getItem("travelTime")}`;
+            document.getElementById("distance&time").innerHTML = `Distance: ${currentDistance.toFixed(2)} meters<br>Total Time: ${formatDuration(currentTimeTravel)}`;
         },
         (error) => {
             console.error("Error getting current position:", error.message);
@@ -185,7 +186,7 @@ function updateUI(userLocation, distance, timeTravel) {
     isTracking = true;
     document.getElementById("get-location").innerHTML = "Stop Tracking";
 
-    document.getElementById("distance&time").innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${timeTravel}`;
+    document.getElementById("distance&time").innerHTML = `Distance: ${distance.toFixed(2)} meters<br>Total Time: ${formatDuration(timeTravel)}`;
 }
 
 async function saveUserData(distance, timeTravel) {
