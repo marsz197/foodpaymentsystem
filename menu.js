@@ -144,7 +144,7 @@ function updateCartCount() {
 document.getElementById("checkout").onclick = async () => {
     const distanceTimeElement = document.getElementById("distance&time");
     
-    if (window.location.pathname !== "/foodpaymentsystem/index.html") {
+    if (window.location.pathname !== "/index.html") {
         alert("Please checkout from the home page.");
         return;
     }
